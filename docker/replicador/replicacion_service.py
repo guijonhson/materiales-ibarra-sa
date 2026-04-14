@@ -207,6 +207,8 @@ class ReplicacionService:
 
         count = 0
         for material in materiales:
+            if not material.get('nombre'):
+                continue
             precio = material.get("costo") or material.get("precio") or 0
             cursor.execute("""
                 INSERT OR REPLACE INTO materiales 
@@ -237,15 +239,17 @@ class ReplicacionService:
 
         count = 0
         for cotizacion in cotizaciones:
+            if not cotizacion.get('id'):
+                continue
             cursor.execute("""
                 INSERT OR REPLACE INTO cotizaciones 
                 (folio, cliente_nombre, cliente_ruc, fecha, items, subtotal, itbms, total, pdf_path, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                cotizacion.get('folio'),
-                cotizacion.get('cliente_nombre'),
-                cotizacion.get('cliente_ruc'),
-                cotizacion.get('fecha'),
+                str(cotizacion.get('id')),
+                cotizacion.get('cliente_nombre', ''),
+                cotizacion.get('cliente_cedula', ''),
+                cotizacion.get('created_at', datetime.now().isoformat()),
                 json.dumps(cotizacion.get('items', [])),
                 cotizacion.get('subtotal', 0),
                 cotizacion.get('itbms', 0),
