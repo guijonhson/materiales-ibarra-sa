@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  replicador-central:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: materiales_replicador
+    restart: unless-stopped
+    environment:
+      - MONGO_HOST=${MONGO_HOST:-host.docker.internal}
+      - MONGO_PORT=${MONGO_PORT:-27017}
+      - MONGO_DB=${MONGO_DB:-materiales_ibarra}
+      - REPLICACION_INTERVALO=${REPLICACION_INTERVALO:-5}
+      - MODO=central
+    volumes:
+      - chiriqui_data:/data/chiriqui
+      - veraguas_data:/data/veraguas
+      - chitre_data:/data/chitre
+      - replicacion_logs:/var/log/replicacion
+    networks:
+      - materiales_network
+    healthcheck:
+      test: ["CMD", "python3", "health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  chiriqui_data:
+    name: materiales_chiriqui_data
+  veraguas_data:
+    name: materiales_veraguas_data
+  chitre_data:
+    name: materiales_chitre_data
+  replicacion_logs:
+    name: materiales_replicacion_logs
+
+networks:
+  materiales_network:
+    name: materiales_network
+    driver: bridge
