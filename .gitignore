@@ -7,3 +7,10 @@ venv/
 .env.*
 *.sqlite3
 *.log
+dist/
+build/
+*.exe
+*.dll
+*.pdf
+storage/
+nul
